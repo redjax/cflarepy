@@ -5,7 +5,7 @@ import typing as t
 
 log = logging.getLogger(__name__)
 
-from settings import DB_SETTINGS
+from cflarepy.libs.settings import DB_SETTINGS
 import sqlalchemy as sa
 import sqlalchemy.exc as sa_exc
 import sqlalchemy.orm as so

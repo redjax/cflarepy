@@ -51,6 +51,7 @@ name = "cflarepy"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "cloudflare" },
     { name = "cyclopts" },
     { name = "dynaconf" },
     { name = "hishel" },
@@ -64,6 +65,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cloudflare", specifier = ">=4.0.0" },
     { name = "cyclopts", specifier = ">=3.3.1" },
     { name = "dynaconf", specifier = ">=3.2.7" },
     { name = "hishel", specifier = ">=0.1.1" },
@@ -73,6 +75,23 @@ requires-dist = [
     { name = "pyarrow", specifier = ">=19.0.0" },
     { name = "pydantic", specifier = ">=2.10.6" },
     { name = "sqlalchemy", specifier = ">=2.0.37" },
+]
+
+[[package]]
+name = "cloudflare"
+version = "4.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "distro" },
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "sniffio" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/50/2d/f5bad5e86898a650d1ceb7ddd04b4520d1bdbc82916afe7a154004b477cb/cloudflare-4.0.0.tar.gz", hash = "sha256:78b1222d532084bb29ab700257617fafd802a24c5af9b056f379b994e929af7e", size = 1638959 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9b/b2/54c768c0fe42fa14c62ac1a801e6d88cce3c82721aa10b5bee35ec877478/cloudflare-4.0.0-py3-none-any.whl", hash = "sha256:d8aa75b2e92f6a5f24ea368e7c19df0e42a76c528464acdc034528dd2597cb64", size = 3640599 },
 ]
 
 [[package]]
@@ -97,6 +116,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/d1/be/adad7507c0a0cc96441cffd063d751cfa7c832e4e0046b3b01c36ec4eb32/cyclopts-3.3.1.tar.gz", hash = "sha256:5ca064d645321825da2c7b4a041221c0fb2706b97b2df57129f08fd5fa3ee95a", size = 62417 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4e/d5/d5f92d1a351d900f6b4e35a0101d0359e336b8c61726e58f04cb365aa528/cyclopts-3.3.1-py3-none-any.whl", hash = "sha256:b612eb09fd4b54a9cce1e7c3983c80434f6b7e54822c217c82a7fab04e248680", size = 71834 },
+]
+
+[[package]]
+name = "distro"
+version = "1.9.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/fc/f8/98eea607f65de6527f8a2e8885fc8015d3e6f5775df186e443e0964a11c3/distro-1.9.0.tar.gz", hash = "sha256:2fa77c6fd8940f116ee1d6b94a2f90b13b5ea8d019b98bc8bafdcabcdd9bdbed", size = 60722 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/12/b3/231ffd4ab1fc9d679809f356cebee130ac7daa00d6d6f3206dd4fd137e9e/distro-1.9.0-py3-none-any.whl", hash = "sha256:7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2", size = 20277 },
 ]
 
 [[package]]

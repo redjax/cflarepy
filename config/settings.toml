@@ -1,20 +1,15 @@
 [default]
 log_level = "INFO"
 tz = "Etc/UTC"
-cf_api_email = ""
 
 [demo]
 log_level = "DEBUG"
-cf_api_email = ""
 
 [dev]
 log_level = "DEBUG"
-cf_api_email = ""
 
 [rc]
 log_level = "DEBUG"
-cf_api_email = ""
 
 [prod]
 log_level = "WARNING"
-cf_api_email = ""

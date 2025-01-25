@@ -1,0 +1,14 @@
+[default]
+cf_api_email = ""
+
+[demo]
+cf_api_email = ""
+
+[dev]
+cf_api_email = ""
+
+[rc]
+cf_api_email = ""
+
+[prod]
+cf_api_email = ""

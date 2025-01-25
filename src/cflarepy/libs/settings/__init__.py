@@ -5,3 +5,4 @@ from .app_settings import APP_SETTINGS
 from .celery_settings import CELERY_SETTINGS
 from .db_settings import DB_SETTINGS
 from .logging_settings import LOGGING_SETTINGS
+from .cloudflare_settings import CLOUDFLARE_SETTINGS

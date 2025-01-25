@@ -1,10 +1,11 @@
 from loguru import logger as log
-
+import typing as t
 from cflarepy.libs import setup
 from cflarepy.libs import settings
 
 from cloudflare import Cloudflare
 from cloudflare.types.zones import Zone
+from cloudflare.types.rulesets import RulesetListResponse
 from cloudflare.types import rules, rulesets
 from cloudflare import pagination
 
@@ -30,7 +31,7 @@ def get_zones(cf_client: Cloudflare) -> list[Zone]:
 
 
 def iter_zone_waf_rules(cf_client: Cloudflare, zones: list[Zone]):
-    rules_lst = []
+    rules_lst: list[RulesetListResponse] = []
     rulesets_lst: list[pagination.SyncSinglePage[rulesets.RulesetListResponse]] = []
 
     try:
@@ -45,7 +46,7 @@ def iter_zone_waf_rules(cf_client: Cloudflare, zones: list[Zone]):
             rulesets_lst.append(_rulesets)
             
             for _rule in _rulesets:
-                print(f"Rule ({type(_rule)}): {_rule}")
+                # log.debug(f"Rule '{_rule.name}' ({type(_rule)}): {_rule}")
                 rules_lst.append(_rule)
             
             ## Retrieve WAF rulesets for zone
@@ -54,25 +55,41 @@ def iter_zone_waf_rules(cf_client: Cloudflare, zones: list[Zone]):
         log.error(msg)
         
         raise exc
+    
+    
+def iter_zone_custom_waf_rules(cf_client: Cloudflare, zones: list[Zone]):
+    zone_rulesets: list[dict[str, t.Union[str, RulesetListResponse]]] = []
+    zone_rules: list = []
+
+    for zone in zones:
+        log.info(f"List custom WAF rules for zone: {zone.name}")
+        
+        rulesets: RulesetListResponse = cf_client.rulesets.list(zone_id=zone.id)
+        _zonerules_dict = {"zone": zone.name, "zone_id": zone.id, "rulesets": rulesets} or None
+        zone_rulesets.append(_zonerules_dict)
+        
+        for zone_ruleset in zone_rulesets:
+            log.debug(f"Zone {zone.name} ruleset: {zone_ruleset.items()}") if zone_rulesets else None
         
 def main(api_email: str = settings.CLOUDFLARE_SETTINGS.get("CF_API_EMAIL"), api_key: str = settings.CLOUDFLARE_SETTINGS.get("CF_API_TOKEN"), api_token: str = settings.CLOUDFLARE_SETTINGS.get("CF_API_TOKEN")):
-    if not api_email:
-        raise ValueError("Missing a Cloudflare account email")
     if not api_token:
-        raise ValueError("Missing a Cloudflare account API key")
-
-    client = Cloudflare(
-        api_token=api_token,
-    )
+        if not api_email:
+            raise ValueError("Missing a Cloudflare account email")
+        if not api_key:
+            raise ValueError("Missing a Cloudflare account API key")
+        
+        client = Cloudflare(api_email=api_email, api_key=api_key)
+    else:
+        client = Cloudflare(
+            api_token=api_token,
+        )
     
     zones: list[Zone] = get_zones(cf_client=client)
     log.debug(f"Retrieved [{len(zones)}] zone(s)")
     
-    # print(f"Zone 1: {zones[0]}")
-    
     zone_dicts = [z.model_dump() for z in zones]
     
-    log.debug(f"Zone 1: [{zone_dicts[0]}]")
+    # log.debug(f"Zone 1: [{zone_dicts[0]}]")
     
     log.info(f"Saving Cloudflare zones to ./sandbox/cloudflare/zones.json")
     with open("./sandbox/cloudflare/zones.json", "w") as f:
@@ -80,6 +97,7 @@ def main(api_email: str = settings.CLOUDFLARE_SETTINGS.get("CF_API_EMAIL"), api_
         f.write(zone_dump)
         
     iter_zone_waf_rules(cf_client=client, zones=zones)
+    iter_zone_custom_waf_rules(cf_client=client, zones=zones)
     
 
 if __name__ == "__main__":

@@ -221,6 +221,7 @@ class HttpxController(AbstractContextManager):
         cacheable_status_codes: list[int] | None = [200, 201, 202, 301, 308],
         cache_allow_heuristics: bool = True,
         cache_allow_stale: bool = False,
+        headers: dict | None = None
     ) -> None:
         self.use_cache: bool = use_cache
         self.force_cache: bool = force_cache
@@ -234,6 +235,7 @@ class HttpxController(AbstractContextManager):
         self.cacheable_status_codes: list[int] | None = cacheable_status_codes
         self.cache_allow_heuristics: bool = cache_allow_heuristics
         self.cache_allow_stale: bool = cache_allow_stale
+        self.headers: dict | None = headers
 
         ## Placeholder for initialized httpx.Client
         self.client: httpx.Client | None = None
@@ -359,7 +361,7 @@ class HttpxController(AbstractContextManager):
         if self.use_cache:
             transport: hishel.CacheTransport | None = self.cache_transport
             client = httpx.Client(
-                transport=transport, follow_redirects=self.follow_redirects
+                transport=transport, follow_redirects=self.follow_redirects, headers=self.headers
             )
 
             return client

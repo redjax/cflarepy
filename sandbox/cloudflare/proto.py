@@ -70,7 +70,18 @@ def iter_zone_custom_waf_rules(cf_client: Cloudflare, zones: list[Zone]):
         
         for zone_ruleset in zone_rulesets:
             log.debug(f"Zone {zone.name} ruleset: {zone_ruleset.items()}") if zone_rulesets else None
+
+
+def iter_zone_waf_packages(cf_client: Cloudflare, zones: list[Zone]):
+    waf_pkgs = []
+    for zone in zones:
+        waf_packages = cf_client.firewall.waf.packages.list(zone_id=zone.id)
+        waf_pkgs.append({"zone": {"name": zone.name, "id": zone.id}, "waf_packages": waf_packages})
         
+        for pkg in waf_packages:
+            ...
+        
+
 def main(api_email: str = settings.CLOUDFLARE_SETTINGS.get("CF_API_EMAIL"), api_key: str = settings.CLOUDFLARE_SETTINGS.get("CF_API_TOKEN"), api_token: str = settings.CLOUDFLARE_SETTINGS.get("CF_API_TOKEN")):
     if not api_token:
         if not api_email:

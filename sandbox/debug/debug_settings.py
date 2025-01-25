@@ -33,7 +33,7 @@ def debug_cloudflare_config(print_password: bool = False):
     print(f"""
 [Cloudflare config]
 Email: {settings.CLOUDFLARE_SETTINGS.get('CF_API_EMAIL')}
-API Key: {settings.CLOUDFLARE_SETTINGS.get('CF_API_KEY') if print_password else "[REDACTED]"}""")
+API Key: {settings.CLOUDFLARE_SETTINGS.get('CF_API_TOKEN') if print_password else "[REDACTED]"}""")
 
 
 def main(print_sensitive: bool = False):

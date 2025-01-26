@@ -1,0 +1,13 @@
+[project]
+name = "cflarepy"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv.workspace]
+members = ["libs/*"]
+
+[tool.uv.sources]
+coreutils-lib = { workspace = true }

@@ -29,6 +29,7 @@ jupyter = [
 ]
 
 [tool.uv]
+package = false
 dev-dependencies = [
     "nox>=2024.10.9",
     "pre-commit>=4.1.0",

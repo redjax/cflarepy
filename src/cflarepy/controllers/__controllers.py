@@ -291,6 +291,7 @@ class CloudflareController(AbstractContextManager):
         log.debug(
             f"Request WAF filters for zone '{zone_id}' response: [{http_res.status_code}: {http_res.reason_phrase}]"
         )
+        # log.debug(f"HTTP response text: {http_res.text}")
         res_dict = http_lib.decode_response(response=http_res)
         # log.debug(f"Response ({type(res_dict)}): {res_dict}")
         res = res_dict["result"]

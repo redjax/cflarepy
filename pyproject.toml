@@ -39,3 +39,8 @@ dev = [
     "pytest-xdist>=3.6.1",
     "ruff>=0.9.3",
 ]
+
+[tool.uv]
+dev-dependencies = [
+    "pre-commit>=4.1.0",
+]

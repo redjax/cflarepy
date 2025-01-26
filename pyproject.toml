@@ -8,6 +8,7 @@ dependencies = [
     "cfapi",
     "database-lib",
     "depends-lib",
+    "domain",
     "http-lib",
     "loguru>=0.7.3",
     "pandas>=2.2.3",
@@ -29,6 +30,7 @@ jupyter = [
 ]
 
 [tool.uv]
+package = false
 dev-dependencies = [
     "nox>=2024.10.9",
     "pre-commit>=4.1.0",
@@ -48,3 +50,4 @@ http-lib = { workspace = true }
 setup-lib = { workspace = true }
 cfapi = { workspace = true }
 project-cli = { workspace = true }
+domain = { workspace = true }

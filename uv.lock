@@ -12,6 +12,7 @@ members = [
     "coreutils-lib",
     "database-lib",
     "depends-lib",
+    "domain",
     "http-lib",
     "project-cli",
     "settings-lib",
@@ -291,6 +292,7 @@ dependencies = [
     { name = "cfapi" },
     { name = "database-lib" },
     { name = "depends-lib" },
+    { name = "domain" },
     { name = "http-lib" },
     { name = "loguru" },
     { name = "pandas" },
@@ -328,6 +330,7 @@ requires-dist = [
     { name = "database-lib", marker = "extra == 'jupyter'", editable = "libs/database-lib" },
     { name = "depends-lib", editable = "libs/depends-lib" },
     { name = "depends-lib", marker = "extra == 'jupyter'", editable = "libs/depends-lib" },
+    { name = "domain", editable = "packages/domain" },
     { name = "http-lib", editable = "libs/http-lib" },
     { name = "http-lib", marker = "extra == 'jupyter'", editable = "libs/http-lib" },
     { name = "ipykernel", marker = "extra == 'jupyter'", specifier = ">=6.29.5" },
@@ -543,6 +546,21 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ae/ed/aefcc8cd0ba62a0560c3c18c33925362d46c6075480bfa4df87b28e169a9/docutils-0.21.2.tar.gz", hash = "sha256:3a6b18732edf182daa3cd12775bbb338cf5691468f91eeeb109deff6ebfa986f", size = 2204444 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8f/d7/9322c609343d929e75e7e5e6255e614fcc67572cfd083959cdef3b7aad79/docutils-0.21.2-py3-none-any.whl", hash = "sha256:dafca5b9e384f0e419294eb4d2ff9fa826435bf15f15b7bd45723e8ad76811b2", size = 587408 },
+]
+
+[[package]]
+name = "domain"
+version = "0.1.0"
+source = { editable = "packages/domain" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "sqlalchemy" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pydantic", specifier = ">=2.10.6" },
+    { name = "sqlalchemy", specifier = ">=2.0.37" },
 ]
 
 [[package]]

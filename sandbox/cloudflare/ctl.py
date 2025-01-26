@@ -5,6 +5,7 @@ import typing as t
 
 from cfapi import CloudflareController
 import http_lib, settings, setup
+from domain import cloudflare as cf_domain
 
 import httpx
 from loguru import logger as log
@@ -27,6 +28,11 @@ def main(email: str, api_key: str, api_token: str):
     
     zones = cf_controller.get_zones()
     log.info(f"Loaded [{len(zones)}] zone(s)")
+    
+    zone_schemas = cf_domain.CloudflareZones(zones=zones)
+    log.debug(f"Zones: {zone_schemas}")
+    
+    input("PAUSE")
     
     waf_filters = []
     

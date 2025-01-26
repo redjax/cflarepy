@@ -1,0 +1,13 @@
+{
+    "python.analysis.extraPaths": [
+        "./applications/project-cli/src",
+        "./libs/coreutils-lib/src",
+        "./libs/database-lib/src",
+        "./libs/depends-lib/src",
+        "./libs/http-lib/src",
+        "./libs/settings-lib/src",
+        "./libs/setup-lib/src",
+        "./packages/cfapi/src",
+        "./packages/domain/src"
+    ]
+}

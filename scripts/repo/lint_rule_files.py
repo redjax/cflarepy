@@ -20,6 +20,30 @@ def path_exists(p: t.Union[str, Path]) -> bool:
     return p.exists()
 
 
+def read_file(file_path: t.Union[str, Path], mode: str = "r") -> t.Any:
+    if mode not in ["r", "r+", "rb", "rb+"]:
+        raise ValueError(f"Invalid mode: '{mode}'. Must be one of: ['r', 'r+', 'rb', 'rb+']")
+
+    file_path = Path(str(file_path)).expanduser().resolve() if "~" in str(file_path) else Path(str(file_path)).resolve()
+    
+    log.info(f"Reading file '{file_path}'")
+    try:
+        with open(file_path, 'r') as file:
+            lines = file.read().splitlines()
+    except PermissionError:
+        log.error(f"Permission denied reading file '{file_path}'.")
+        raise
+    except FileNotFoundError:
+        log.error(f"File '{file_path}' not found.")
+        raise
+    except Exception as exc:
+        msg = f"({type(exc).__name__}) Unhandled exception reading file '{file_path}': {exc}"
+        log.error(msg)
+        raise
+    
+    return lines
+
+
 def sort_country_codes(file_path: t.Union[str, Path], output_path: t.Union[str, Path] | None = None, overwrite: bool = False) -> bool:
     """Sorts country codes in a text file alphabetically and writes the output to a new file."""
     if not file_path:
@@ -40,21 +64,8 @@ def sort_country_codes(file_path: t.Union[str, Path], output_path: t.Union[str, 
         output_path = Path(output_path).expanduser().resolve()
 
     # Read and sort the country codes
-    log.info(f"Reading file '{file_path}'")
-    try:
-        with open(file_path, 'r') as file:
-            country_codes = file.read().splitlines()
-    except PermissionError:
-        log.error(f"Permission denied reading file '{file_path}'.")
-        raise
-    except FileNotFoundError:
-        log.error(f"File '{file_path}' not found.")
-        raise
-    except Exception as exc:
-        msg = f"({type(exc).__name__}) Unhandled exception reading file '{file_path}': {exc}"
-        log.error(msg)
-        raise
-    
+    country_codes = read_file(file_path=file_path)
+
     log.info("Sorting country codes...")
     try:
         sorted_codes = sorted(country_codes)
@@ -75,27 +86,6 @@ def sort_country_codes(file_path: t.Union[str, Path], output_path: t.Union[str, 
 
     log.info(f"Successfully wrote sorted country codes to '{output_path}'")
     return True
-
-
-# def sort_ip_addresses(file_path, output_path: t.Union[str, Path], overwrite: bool = False):
-#     """Sorts IP addresses in a text file numerically and writes the output to a new file."""
-#     with open(file_path, 'r') as file:
-#         ip_addresses = file.read().splitlines()
-
-#     sorted_ips = sorted(ip_addresses, key=lambda ip: ipaddress.ip_address(ip))
-
-#     with open(output_path, 'w') as file:
-#         file.write("\n".join(sorted_ips))
-
-# def sort_ua_strings(file_path, output_path: t.Union[str, Path], overwrite: bool = False):
-#     """Sorts User Agent regex strings in a text file alphabetically and writes the output to a new file."""
-#     with open(file_path, 'r') as file:
-#         regex_strings = file.read().splitlines()
-
-#     sorted_regex = sorted(regex_strings)
-
-#     with open(output_path, 'w') as file:
-#         file.write("\n".join(sorted_regex))
 
 
 def sort_ip_addresses(file_path: t.Union[str, Path], output_path: t.Union[str, Path] | None = None, overwrite: bool = False) -> bool:
@@ -121,8 +111,7 @@ def sort_ip_addresses(file_path: t.Union[str, Path], output_path: t.Union[str, P
         output_path = Path(output_path).expanduser().resolve()
 
     log.info(f"Reading file '{file_path}'")
-    with open(file_path, 'r') as file:
-        ip_addresses = file.read().splitlines()
+    ip_addresses = read_file(file_path=file_path)
 
     log.info("Sorting IP addresses...")
     try:
@@ -146,7 +135,7 @@ def sort_ip_addresses(file_path: t.Union[str, Path], output_path: t.Union[str, P
 
 
 def sort_ua_strings(file_path: t.Union[str, Path], output_path: t.Union[str, Path] | None = None, overwrite: bool = False) -> bool:
-    """Sorts User Agent regex strings in a text file alphabetically and writes the output to a new file."""
+    """Sorts User Agent regex strings in a text file alphabetically (ignoring wildcards) & writes the output to a new file while preserving the original wildcards."""
     if not file_path:
         raise ValueError("Missing file path to read")
 
@@ -168,12 +157,12 @@ def sort_ua_strings(file_path: t.Union[str, Path], output_path: t.Union[str, Pat
         output_path = Path(output_path).expanduser().resolve()
 
     log.info(f"Reading file '{file_path}'")
-    with open(file_path, 'r') as file:
-        regex_strings = file.read().splitlines()
+    regex_strings = read_file(file_path=file_path)
 
     log.info("Sorting User Agent strings...")
     try:
-        sorted_regex = sorted(regex_strings)
+        ## Sort based on the strings ignoring the wildcards
+        sorted_regex = sorted(regex_strings, key=lambda s: s.replace("*", ""))
     except Exception as exc:
         msg = f"({type(exc).__name__}) Error sorting User Agent strings: {exc}"
         log.error(msg)
@@ -183,10 +172,16 @@ def sort_ua_strings(file_path: t.Union[str, Path], output_path: t.Union[str, Pat
     try:
         with open(output_path, 'w') as file:
             file.write("\n".join(sorted_regex))
+    except PermissionError:
+        log.error(f"Permission denied reading file '{file_path}'.")
+        raise
+    except FileNotFoundError:
+        log.error(f"File '{file_path}' not found.")
+        raise
     except Exception as exc:
-        msg = f"({type(exc).__name__}) Unhandled exception writing sorted User Agent strings to file '{output_path}': {exc}"
+        msg = f"({type(exc).__name__}) Unhandled exception reading file '{file_path}': {exc}"
         log.error(msg)
-        raise exc
+        raise
 
     log.info(f"Successfully wrote sorted User Agent strings to '{output_path}'")
     return True

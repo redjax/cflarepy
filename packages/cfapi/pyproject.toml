@@ -1,34 +1,29 @@
 [project]
-name = "cflarepy"
+name = "cfapi"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "cfapi",
     "database-lib",
     "depends-lib",
+    "hishel>=0.1.1",
     "http-lib",
+    "httpx>=0.28.1",
     "loguru>=0.7.3",
+    "pydantic>=2.10.6",
     "settings-lib",
-    "setup-lib",
 ]
 
-[tool.uv]
-dev-dependencies = [
-    "nox>=2024.10.9",
-    "pytest-xdist>=3.6.1",
-    "ruff>=0.9.3",
-]
+[project.scripts]
+hello = "cfapi:hello"
 
-[tool.uv.workspace]
-members = ["libs/*", "packages/*"]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.uv.sources]
-coreutils-lib = { workspace = true }
-settings-lib = { workspace = true }
 database-lib = { workspace = true }
 depends-lib = { workspace = true }
 http-lib = { workspace = true }
-setup-lib = { workspace = true }
-cfapi = { workspace = true }
+settings-lib = { workspace = true }

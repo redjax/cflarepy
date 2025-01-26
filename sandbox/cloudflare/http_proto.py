@@ -12,12 +12,12 @@ import pandas as pd
 
 def list_zones(http_controller: http_lib.HttpxController):
     with http_controller as http_ctl:
-        req = http_lib.build_request(url="https://api.cloudflare.com/client/v4/zones")
+        req = http_lib.build_request(url="https://api.cloudflare.com/client/v4/zones", headers=http_controller.headers)
         
         log.info("Requesting Cloudflare account zones")
         try:
             zones_res = http_ctl.send_request(request=req)
-            log.success(f"Cloudflare zones requested. [{zones_res.status_code}: {zones_res.reason_phrase}]")
+            zones_res.raise_for_status()
         except Exception as exc:
             msg = f"({type(exc)}) Error getting Cloudflare account zones. Details: {exc}"
             log.error(msg)
@@ -28,40 +28,41 @@ def list_zones(http_controller: http_lib.HttpxController):
             log.warning(f"Non-200 status code requesting all zones: [{zones_res.status_code}: {zones_res.reason_phrase}]: {zones_res.text}")
             return
         
+        log.success(f"[{zones_res.status_code}: {zones_res.reason_phrase}]")
+        
         log.debug(f"Request zones response: {zones_res}")
         res_dict = http_lib.decode_response(response=zones_res)
         log.debug(f"Response ({type(res_dict)}): {res_dict}")
         res = res_dict["result"]
         
         return res
-
-
-def get_zone_waf_packages(http_controller: http_lib.HttpxController, zone_id: str):
     
+
+def get_zone_waf_filters(http_controller: http_lib.HttpxController, zone_id: str):
     with http_controller as http_ctl:
-        req = http_lib.build_request(url=f"https://api.cloudflare.com/client/v4/zones/{zone_id}/firewall/waf/packages")
+        req = http_lib.build_request(url=f"https://api.cloudflare.com/client/v4/zones/{zone_id}/filters", headers=http_controller.headers)
         
+        log.info("Requesting Cloudflare zone WAF filters")
         try:
-            waf_pkgs_res = http_ctl.send_request(request=req)
-            log.success(f"Cloudflare waf packages requested. [{waf_pkgs_res.status_code}: {waf_pkgs_res.reason_phrase}]")
+            zone_filters_res = http_ctl.send_request(request=req)
+            log.success(f"Cloudflare zone WAF filters requested. [{zone_filters_res.status_code}: {zone_filters_res.reason_phrase}]")
         except Exception as exc:
-            msg = f"({type(exc)}) Error getting Cloudflare account zones. Details: {exc}"
+            msg = f"({type(exc)}) Error getting Cloudflare zone WAF filters. Details: {exc}"
             log.error(msg)
             
             raise exc
         
-        if not waf_pkgs_res.status_code == 200:
-            log.warning(f"Non-200 status code requesting zone WAF packages: [{waf_pkgs_res.status_code}: {waf_pkgs_res.reason_phrase}]: {waf_pkgs_res.text}")
+        if not zone_filters_res.status_code == 200:
+            log.warning(f"Non-200 status code requesting zone WAF filters: [{zone_filters_res.status_code}: {zone_filters_res.reason_phrase}]: {zone_filters_res.text}")
             return
         
-        log.debug(f"Request zones response: {waf_pkgs_res}")
-        res_dict = http_lib.decode_response(response=waf_pkgs_res)
+        log.debug(f"Request zone WAF filters response: {zone_filters_res} [{zone_filters_res.status_code if zone_filters_res else '<error>'}: {zone_filters_res.reason_phrase if zone_filters_res else '<error>'}]: {zone_filters_res.reason_phrase if zone_filters_res else '<error>'}")
+        res_dict = http_lib.decode_response(response=zone_filters_res)
         log.debug(f"Response ({type(res_dict)}): {res_dict}")
         res = res_dict["result"]
         
         return res
     
-
 def main():
     api_token = settings.CLOUDFLARE_SETTINGS.get("CF_API_TOKEN")
     api_email = settings.CLOUDFLARE_SETTINGS.get("CF_API_EMAIL")
@@ -98,13 +99,19 @@ def main():
     
     zones_df.to_parquet("./sandbox/cloudflare/zones.parquet", engine="pyarrow")
     
-    waf_pkgs = []
+    waf_filters: list[dict] = []
+    
     for zone in zones:
-        log.debug(f"Zone: {zone}\n")
-        zone_waf_pkgs = get_zone_waf_packages(http_controller=http_controller, zone_id=zone["id"])
-        waf_pkgs.append({"zone": {"name": zone["name"], "id": zone["id"]}, "waf_packages": zone_waf_pkgs})
+        log.debug(f"Getting WAF filter rules for zone '{zone['name']}")
+        filters = get_zone_waf_filters(http_controller=http_controller, zone_id=zone["id"])
+        _res = {"zone": {"name": zone["name"], "id": zone["id"]}, "filters": filters}
+        waf_filters.append(_res)
         
-    log.debug(f"Retrieved [{len(waf_pkgs)}] WAF package(s)")
+    log.info(f"Retrieved [{len(waf_filters)}] zone WAF filter(s)")
+    
+    waf_filters_json = json.dumps(waf_filters, indent=4, sort_keys=True, default=str)
+    with open("./sandbox/cloudflare/waf_filters.json", "w") as f:
+        f.write(waf_filters_json)
 
     
 

@@ -111,7 +111,7 @@ class CloudflareController(AbstractContextManager):
             return True
         
     def _validate_token_auth(self, token: str | None):
-        if not token:
+        if not token or token == "":
             if not self.api_token:
                 raise ValueError("No API token provided")
             else:

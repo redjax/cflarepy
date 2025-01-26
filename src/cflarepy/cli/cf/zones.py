@@ -4,18 +4,29 @@ from cflarepy.libs import settings
 from cflarepy.controllers import CloudflareController
 
 from cyclopts import App, Group, Parameter
+import pandas as pd
 
 cf_zones_app = App(name="zones", help="CLI for Cloudflare zones operations.")
 
 @cf_zones_app.command(name="list")
-def list_cf_zones():
-    print(f"Test settings: {settings.CLOUDFLARE_SETTINGS.as_dict()}")
-    api_token = settings.CLOUDFLARE_SETTINGS.get("CF_API_TOKEN")
-    api_email = settings.CLOUDFLARE_SETTINGS.get("CF_API_EMAIL")
-    api_key = settings.CLOUDFLARE_SETTINGS.get("CF_API_KEY")
+def list_cf_zones(email: str | None = None, api_key: str | None = None, api_token: str | None = None):
+    if not api_token or api_token == "":
+        api_token = settings.CLOUDFLARE_SETTINGS.get("CF_API_TOKEN")
+    if not email or email == "":
+        api_email = settings.CLOUDFLARE_SETTINGS.get("CF_API_EMAIL")
+    if not api_key or api_key == "":
+        api_key = settings.CLOUDFLARE_SETTINGS.get("CF_API_KEY")
     
     cf_controller = CloudflareController(account_email=api_email, api_key=api_key, api_token=api_token)
     
-    zones = cf_controller.get_zones()
+    try:
+        zones = cf_controller.get_zones()
+        log.debug(f"Zones ([{len(zones)}] {type(zones)})")
+    except Exception as exc:
+        msg = f"({type(exc)}) Error getting Cloudflare zones. Details: {exc}"
+        log.error(msg)
+        
+        return
     
-    print(f"Zones ([{len(zones)}] {type(zones)})")
+    zones_df = pd.DataFrame(zones)
+    print(f"Zones:\n{zones_df}")

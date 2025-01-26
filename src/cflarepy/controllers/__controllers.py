@@ -8,6 +8,50 @@ from cflarepy.libs import http_lib
 import httpx
 from loguru import logger as log
 
+
+def get_cloudflare_controller(
+    api_base_url: str = "https://api.cloudflare.com/client/v4",
+    debug_secrets: bool = False,
+    account_id: str | None = None,
+    account_email: str | None = None,
+    api_key: str | None = None,
+    api_token: str | None = None,
+    use_cache: bool = True,
+    force_cache: bool = True,
+    follow_redirects: bool = True,
+    cache_type: str | None = "sqlite",
+    cache_file_dir: str | None = ".cache/http/hishel",
+    cache_db_file: str = ".cache/http/hishel.sqlite3",
+    cache_ttl: int | None = 900,
+    check_ttl_every: float | None = 60,
+    headers: dict | None = None,
+) -> CloudflareController:
+    try:
+        cloudflare_controller: CloudflareController = CloudflareController(
+            debug_secrets=debug_secrets,
+            account_id=account_id,
+            account_email=account_email,
+            api_key=api_key,
+            api_token=api_token,
+            use_cache=use_cache,
+            force_cache=force_cache,
+            follow_redirects=follow_redirects,
+            cache_type=cache_type,
+            cache_file_dir=cache_file_dir,
+            cache_db_file=cache_db_file,
+            cache_ttl=cache_ttl,
+            check_ttl_every=check_ttl_every,
+            headers=headers,
+        )
+
+        return cloudflare_controller
+    except Exception as exc:
+        msg = f"({type(exc)}) Error creating CloudflareController. Details: {exc}"
+        log.error(msg)
+
+        raise exc
+
+
 class CloudflareController(AbstractContextManager):
     def __init__(
         self,
@@ -52,7 +96,7 @@ class CloudflareController(AbstractContextManager):
 
     def __exit__(self, exc_type, exc_val, traceback) -> t.Literal[False] | None:
         return False
-    
+
     @property
     def use_token(self) -> bool:
         if self.api_token:
@@ -102,133 +146,151 @@ class CloudflareController(AbstractContextManager):
         )
 
         return controller
-    
+
     def _validate_auth(self):
         if self.api_token:
             return True
-        
+
         if self.account_email and self.api_key:
             return True
-        
+
     def _validate_token_auth(self, token: str | None):
         if not token or token == "":
             if not self.api_token:
                 raise ValueError("No API token provided")
             else:
                 return self.api_token
-            
+
         return token
-    
+
     def _get_auth_headers(self) -> dict:
         if self.use_token:
             headers: dict = {"Authorization": f"Bearer {self.api_token}"}
         else:
-            headers: dict = {"X-Auth-Email": self.account_email, "X-Auth-Key": self.api_key}
-            
+            headers: dict = {
+                "X-Auth-Email": self.account_email,
+                "X-Auth-Key": self.api_key,
+            }
+
         return headers
     
-    def get_accounts(self, token: str | None = None, headers: dict | None = None, refresh: bool = False) -> dict | None:
+    def _send_request(self, request: httpx.Request) -> httpx.Response:
+        try:
+            with self.http_controller as http_ctl:
+                http_res = http_ctl.send_request(request=request)
+                http_res.raise_for_status()
+                
+            return http_res
+        except Exception as exc:
+            msg = f"({type(exc)}) Error sending request. Details: {exc}"
+            log.error(msg)
+
+            raise exc
+
+    def get_accounts(
+        self,
+        token: str | None = None,
+        headers: dict | None = None,
+        refresh: bool = False,
+    ) -> dict | None:
         if not headers:
             headers: dict = self._get_auth_headers()
-        
+
         token = self._validate_token_auth(token)
         if not token:
             raise ValueError("No API token provided")
-        
+
         if not self.http_controller:
             self.http_controller = self._get_controller()
 
         url: str = f"{self.base_url}/accounts"
         req: httpx.Request = http_lib.build_request(url=url, headers=headers)
-        
+
         log.info("Requesting accounts for token")
-        try:
-            with self.http_controller as http_ctl:
-                http_res = http_ctl.send_request(request=req)
-                http_res.raise_for_status()
-        except Exception as exc:
-            msg = f"({type(exc)}) Error getting accounts for token. Details: {exc}"
-            log.error(msg)
-            
-            raise exc
-        
+        http_res = self._send_request(request=req)
+
         if not http_res.status_code == 200:
-            log.warning(f"Non-200 status code requesting accounts for token: [{http_res.status_code}: {http_res.reason_phrase}]: {http_res.text}")
+            log.warning(
+                f"Non-200 status code requesting accounts for token: [{http_res.status_code}: {http_res.reason_phrase}]: {http_res.text}"
+            )
             return
-        
+
         # log.debug(f"Request accounts response: [{http_res.status_code}: {http_res.reason_phrase}]")
         res_dict = http_lib.decode_response(response=http_res)
         log.debug(f"Response ({type(res_dict)}): {res_dict}")
         res = res_dict["result"]
 
         return res
-    
-    def get_zones(self, token: str | None = None, headers: dict | None = None, refresh: bool = False) -> dict| None:
+
+    def get_zones(
+        self,
+        token: str | None = None,
+        headers: dict | None = None,
+        refresh: bool = False,
+    ) -> dict | None:
         if not headers:
             headers: dict = self._get_auth_headers()
-        
+
         token = self._validate_token_auth(token)
         if not token:
             raise ValueError("No API token provided")
-        
+
         if not self.http_controller:
             self.http_controller = self._get_controller()
 
         url: str = f"{self.base_url}/zones"
         req: httpx.Request = http_lib.build_request(url=url, headers=headers)
-        
+
         log.info("Requesting zones for token")
-        try:
-            with self.http_controller as http_ctl:
-                http_res = http_ctl.send_request(request=req)
-                http_res.raise_for_status()
-        except Exception as exc:
-            msg = f"({type(exc)}) Error getting zones for token. Details: {exc}"
-            log.error(msg)
-            
-            raise exc
-        
+        http_res = self._send_request(request=req)
+
         if not http_res.status_code == 200:
-            log.warning(f"Non-200 status code requesting zones for token: [{http_res.status_code}: {http_res.reason_phrase}]: {http_res.text}")
+            log.warning(
+                f"Non-200 status code requesting zones for token: [{http_res.status_code}: {http_res.reason_phrase}]: {http_res.text}"
+            )
             return
-        
-        log.debug(f"Request zones response: [{http_res.status_code}: {http_res.reason_phrase}]")
+
+        log.debug(
+            f"Request zones response: [{http_res.status_code}: {http_res.reason_phrase}]"
+        )
         res_dict = http_lib.decode_response(response=http_res)
         # log.debug(f"Response ({type(res_dict)}): {res_dict}")
         res = res_dict["result"]
 
         return res
 
-    def get_zone_waf_filters(self, zone_id: str, token: str | None = None, headers: dict | None = None, refresh: bool = False):
+    def get_zone_waf_filters(
+        self,
+        zone_id: str,
+        token: str | None = None,
+        headers: dict | None = None,
+        refresh: bool = False,
+    ):
         if not headers:
             headers: dict = self._get_auth_headers()
-        
+
         token = self._validate_token_auth(token)
         if not token:
             raise ValueError("No API token provided")
-        
+
         if not self.http_controller:
             self.http_controller = self._get_controller()
 
         url: str = f"{self.base_url}/zones/{zone_id}/filters"
         req: httpx.Request = http_lib.build_request(url=url, headers=headers)
-        
+
         log.info(f"Requesting zone WAF filters for zone '{zone_id}'")
-        try:
-            with self.http_controller as http_ctl:
-                http_res = http_ctl.send_request(request=req)
-                http_res.raise_for_status()
-        except Exception as exc:
-            msg = f"({type(exc)}) Error getting WAF filters for zone '{zone_id}'. Details: {exc}"
-            log.error(msg)
-            
-            raise exc
-        
+        http_res = self._send_request(request=req)
+
         if not http_res.status_code == 200:
-            log.warning(f"Non-200 status code requesting WAF filters for zone '{zone_id}': [{http_res.status_code}: {http_res.reason_phrase}]: {http_res.text}")
+            log.warning(
+                f"Non-200 status code requesting WAF filters for zone '{zone_id}': [{http_res.status_code}: {http_res.reason_phrase}]: {http_res.text}"
+            )
             return
-        
-        log.debug(f"Request WAF filters for zone '{zone_id}' response: [{http_res.status_code}: {http_res.reason_phrase}]")
+
+        log.debug(
+            f"Request WAF filters for zone '{zone_id}' response: [{http_res.status_code}: {http_res.reason_phrase}]"
+        )
         res_dict = http_lib.decode_response(response=http_res)
         # log.debug(f"Response ({type(res_dict)}): {res_dict}")
         res = res_dict["result"]

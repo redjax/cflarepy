@@ -17,9 +17,21 @@ dependencies = [
     "setup-lib",
 ]
 
+[project.optional-dependencies]
+jupyter = [
+    "cfapi",
+    "coreutils-lib",
+    "database-lib",
+    "depends-lib",
+    "http-lib",
+    "ipykernel>=6.29.5",
+    "jupyter>=1.1.1",
+]
+
 [tool.uv]
 dev-dependencies = [
     "nox>=2024.10.9",
+    "pre-commit>=4.1.0",
     "pytest-xdist>=3.6.1",
     "ruff>=0.9.3",
 ]

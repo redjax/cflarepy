@@ -1,0 +1,7 @@
+{
+    "cloudflare": {
+        "cf_api_email": "<your Cloudflare account email>",
+        "cf_api_key": "<your Cloudflare API key>",
+        "cf_api_token": "<your Cloudflare API token>"
+    }
+}

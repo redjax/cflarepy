@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "database-lib",
+    "depends-lib",
     "settings-lib",
 ]
 
@@ -23,3 +24,4 @@ members = ["libs/*"]
 coreutils-lib = { workspace = true }
 settings-lib = { workspace = true }
 database-lib = { workspace = true }
+depends-lib = { workspace = true }

@@ -9,6 +9,7 @@ members = [
     "depends-lib",
     "http-lib",
     "settings-lib",
+    "setup-lib",
 ]
 
 [[package]]
@@ -74,7 +75,9 @@ dependencies = [
     { name = "database-lib" },
     { name = "depends-lib" },
     { name = "http-lib" },
+    { name = "loguru" },
     { name = "settings-lib" },
+    { name = "setup-lib" },
 ]
 
 [package.dev-dependencies]
@@ -89,7 +92,9 @@ requires-dist = [
     { name = "database-lib", editable = "libs/database-lib" },
     { name = "depends-lib", editable = "libs/depends-lib" },
     { name = "http-lib", editable = "libs/http-lib" },
+    { name = "loguru", specifier = ">=0.7.3" },
     { name = "settings-lib", editable = "libs/settings-lib" },
+    { name = "setup-lib", editable = "libs/setup-lib" },
 ]
 
 [package.metadata.requires-dev]
@@ -548,6 +553,17 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [{ name = "dynaconf", specifier = ">=3.2.7" }]
+
+[[package]]
+name = "setup-lib"
+version = "0.1.0"
+source = { editable = "libs/setup-lib" }
+dependencies = [
+    { name = "loguru" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "loguru", specifier = ">=0.7.3" }]
 
 [[package]]
 name = "sniffio"

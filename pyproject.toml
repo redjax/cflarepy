@@ -7,6 +7,7 @@ requires-python = ">=3.11"
 dependencies = [
     "database-lib",
     "depends-lib",
+    "http-lib",
     "settings-lib",
 ]
 
@@ -25,3 +26,4 @@ coreutils-lib = { workspace = true }
 settings-lib = { workspace = true }
 database-lib = { workspace = true }
 depends-lib = { workspace = true }
+http-lib = { workspace = true }

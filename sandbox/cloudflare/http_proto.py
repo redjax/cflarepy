@@ -7,6 +7,7 @@ from cflarepy.libs import http_lib
 import json
 
 import httpx
+import pandas as pd
 
 
 def list_zones(http_controller: http_lib.HttpxController):
@@ -23,7 +24,18 @@ def list_zones(http_controller: http_lib.HttpxController):
             
             raise exc
         
+        if not zones_res.status_code == 200:
+            log.warning(f"Non-200 status code requesting all zones: [{zones_res.status_code}: {zones_res.reason_phrase}]: {zones_res.text}")
+            return
+        
         log.debug(f"Request zones response: {zones_res}")
+        res_dict = http_lib.decode_response(response=zones_res)
+        log.debug(f"Response ({type(res_dict)}): {res_dict}")
+        res = res_dict["result"]
+        
+        return res
+        
+    
 
 def main():
     api_token = settings.CLOUDFLARE_SETTINGS.get("CF_API_TOKEN")
@@ -40,17 +52,25 @@ def main():
     # else:
     #     headers =  {"X-Auth-Token": settings.CLOUDFLARE_SETTINGS.get("CF_API_TOKEN")}
     
-    headers = {"X-Auth-Email": api_email, "X-Auth-Key": api_token}
-        
+    # headers = {"X-Auth-Email": api_email, "X-Auth-Key": api_token}
+    headers = {"Authorization": f"Bearer {api_token}"}
     log.debug(f"HTTP headers: {headers}")
     
     http_controller = http_lib.HttpxController(headers=headers)
     
     ## Get zones
     zones = list_zones(http_controller)
+    log.debug(f"Zones ([{len(zones)}] {type(zones)})")
+    
+    for zone in zones:
+        log.debug(f"Zone: {zone}\n")
+    
+    zones_df = pd.DataFrame(zones)
+    log.debug(f"Zones Dataframe:\n{zones_df}")
+
     
 
 if __name__ == "__main__":
-    setup.setup_loguru_logging(log_level=settings.LOGGING_SETTINGS.get("LOG_LEVEL", default="INFO"))
+    setup.setup_loguru_logging(log_level=settings.LOGGING_SETTINGS.get("LOG_LEVEL", default="INFO"), colorize=True)
     
     main()

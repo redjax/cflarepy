@@ -387,6 +387,7 @@ class HttpxController(AbstractContextManager):
             (httpx.Response): An HTTPX Response object with the response's data.
 
         """
+        log.debug(f"Headers (send_request()): {self.client.headers}")
         try:
             res: httpx.Response = self.client.send(request, stream=stream, auth=auth)
             

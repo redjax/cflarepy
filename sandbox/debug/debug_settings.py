@@ -1,6 +1,8 @@
-from cflarepy.libs import settings
+from __future__ import annotations
+
 import time
 
+from cflarepy.libs import settings
 
 ## When True, passwords & other secrets will be printed to the command line.
 PRINT_SENSITIVE: bool = True

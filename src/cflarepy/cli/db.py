@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import typing as t
 
-from cyclopts import App, Group, Parameter
+from cflarepy.libs import settings, setup
 from cflarepy.libs.depends import db_depends
+
+from cyclopts import App, Group, Parameter
 from loguru import logger as log
-from cflarepy.libs import settings
-from cflarepy.libs import setup
 import sqlalchemy as sa
 import sqlalchemy.exc as sa_exc
 import sqlalchemy.sql as sa_sql

@@ -1,14 +1,13 @@
-from loguru import logger as log
-import typing as t
-from cflarepy.libs import setup
-from cflarepy.libs import settings
-from cflarepy.libs import http_lib
+from __future__ import annotations
 
 import json
+import typing as t
+
+from cflarepy.libs import http_lib, settings, setup
 
 import httpx
+from loguru import logger as log
 import pandas as pd
-
 
 def list_zones(http_controller: http_lib.HttpxController):
     with http_controller as http_ctl:

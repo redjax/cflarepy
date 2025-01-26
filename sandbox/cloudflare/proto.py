@@ -1,16 +1,15 @@
-from loguru import logger as log
-import typing as t
-from cflarepy.libs import setup
-from cflarepy.libs import settings
-
-from cloudflare import Cloudflare
-from cloudflare.types.zones import Zone
-from cloudflare.types.rulesets import RulesetListResponse
-from cloudflare.types import rules, rulesets
-from cloudflare import pagination
+from __future__ import annotations
 
 import json
+import typing as t
 
+from cflarepy.libs import settings, setup
+
+from cloudflare import Cloudflare, pagination
+from cloudflare.types import rules, rulesets
+from cloudflare.types.rulesets import RulesetListResponse
+from cloudflare.types.zones import Zone
+from loguru import logger as log
 
 def get_zones(cf_client: Cloudflare) -> list[Zone]:
     zones = []

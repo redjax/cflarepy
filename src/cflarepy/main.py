@@ -1,5 +1,8 @@
+from __future__ import annotations
+
+from cflarepy.libs import http_lib, settings, setup
+
 from loguru import logger as log
-from cflarepy.libs import setup, settings, http_lib
 
 def main():
     log.info("cflarepy startup")

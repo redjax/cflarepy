@@ -1,15 +1,14 @@
-from loguru import logger as log
-import typing as t
-from cflarepy.libs import setup
-from cflarepy.libs import settings
-from cflarepy.libs import http_lib
-from cflarepy.controllers import CloudflareController
+from __future__ import annotations
 
 import json
+import typing as t
+
+from cflarepy.controllers import CloudflareController
+from cflarepy.libs import http_lib, settings, setup
 
 import httpx
+from loguru import logger as log
 import pandas as pd
-
 
 def main(email: str, api_key: str, api_token: str):
     cf_controller: CloudflareController = CloudflareController(account_email=email, api_key=api_key, api_token=api_token)

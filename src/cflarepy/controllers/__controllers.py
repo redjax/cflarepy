@@ -1,9 +1,12 @@
-from loguru import logger as log
+from __future__ import annotations
+
+from contextlib import AbstractContextManager, contextmanager
 import typing as t
-from contextlib import contextmanager, AbstractContextManager
+
 from cflarepy.libs import http_lib
 
 import httpx
+from loguru import logger as log
 
 class CloudflareController(AbstractContextManager):
     def __init__(

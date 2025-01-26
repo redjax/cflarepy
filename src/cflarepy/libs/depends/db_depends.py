@@ -7,6 +7,7 @@ log = logging.getLogger(__name__)
 
 from cflarepy.libs import db_lib as db
 from cflarepy.libs.settings import DB_SETTINGS
+
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 

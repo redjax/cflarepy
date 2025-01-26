@@ -367,6 +367,14 @@ class HttpxController(AbstractContextManager):
             return client
         else:
             return httpx.Client()
+        
+    def merge_headers(self, headers: dict | None) -> dict | None:
+        if not self.headers:
+            return headers
+        
+        merged = {**self.headers, **headers}
+        
+        return merged
 
     def send_request(
         self,

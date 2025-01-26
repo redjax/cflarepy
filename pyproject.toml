@@ -11,6 +11,7 @@ dependencies = [
     "http-lib",
     "loguru>=0.7.3",
     "pandas>=2.2.3",
+    "project-cli",
     "pyarrow>=19.0.0",
     "settings-lib",
     "setup-lib",
@@ -24,7 +25,7 @@ dev-dependencies = [
 ]
 
 [tool.uv.workspace]
-members = ["libs/*", "packages/*"]
+members = ["libs/*", "packages/*", "applications/*"]
 
 [tool.uv.sources]
 coreutils-lib = { workspace = true }
@@ -34,3 +35,4 @@ depends-lib = { workspace = true }
 http-lib = { workspace = true }
 setup-lib = { workspace = true }
 cfapi = { workspace = true }
+project-cli = { workspace = true }

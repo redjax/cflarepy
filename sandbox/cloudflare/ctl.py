@@ -26,6 +26,30 @@ def main(email: str, api_key: str, api_token: str):
     else:
         raise NotImplementedError("Multiple accounts not supported yet")
     
+    zones = cf_controller.get_zones()
+    log.info(f"Loaded [{len(zones)}] zone(s)")
+    
+    waf_filters = []
+    
+    for zone in zones:
+        zone_waf_filters = cf_controller.get_zone_waf_filters(zone_id=zone["id"])
+        filter_dict = {"zone": {"name": zone["name"], "id": zone["id"]}, "filters": zone_waf_filters}
+        # log.debug(f"Filter dict: {filter_dict}")
+        waf_filters.append(filter_dict)
+    
+    log.info(f"Retrieved [{len(waf_filters)}] WAF filter(s)")
+    
+    for waf_filter in waf_filters:
+        log.debug(f"""[WAF Filter]
+Zone: {waf_filter['zone']}
+
+Filters:
+{waf_filter['filters']}
+""")
+        
+    with open("./sandbox/cloudflare/waf_filters.json", "w") as f:
+        f.write(json.dumps(waf_filters, indent=4, sort_keys=True, default=str))
+
     
 if __name__ == "__main__":
     setup.setup_loguru_logging(log_level=settings.LOGGING_SETTINGS.get("LOG_LEVEL", default="INFO"), colorize=True)

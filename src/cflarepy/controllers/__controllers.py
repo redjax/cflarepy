@@ -124,7 +124,7 @@ class CloudflareController(AbstractContextManager):
             
         return headers
     
-    def get_accounts(self, token: str | None = None, headers: dict | None = None) -> str:
+    def get_accounts(self, token: str | None = None, headers: dict | None = None, refresh: bool = False) -> dict | None:
         if not headers:
             headers: dict = self._get_auth_headers()
         
@@ -150,12 +150,84 @@ class CloudflareController(AbstractContextManager):
             raise exc
         
         if not http_res.status_code == 200:
-            log.warning(f"Non-20 status code requesting accounts for token: [{http_res.status_code}: {http_res.reason_phrase}]: {http_res.text}")
+            log.warning(f"Non-200 status code requesting accounts for token: [{http_res.status_code}: {http_res.reason_phrase}]: {http_res.text}")
             return
         
-        log.info(f"Request accounts response: [{http_res.status_code}: {http_res.reason_phrase}]")
+        # log.debug(f"Request accounts response: [{http_res.status_code}: {http_res.reason_phrase}]")
         res_dict = http_lib.decode_response(response=http_res)
         log.debug(f"Response ({type(res_dict)}): {res_dict}")
+        res = res_dict["result"]
+
+        return res
+    
+    def get_zones(self, token: str | None = None, headers: dict | None = None, refresh: bool = False) -> dict| None:
+        if not headers:
+            headers: dict = self._get_auth_headers()
+        
+        token = self._validate_token_auth(token)
+        if not token:
+            raise ValueError("No API token provided")
+        
+        if not self.http_controller:
+            self.http_controller = self._get_controller()
+
+        url: str = f"{self.base_url}/zones"
+        req: httpx.Request = http_lib.build_request(url=url, headers=headers)
+        
+        log.info("Requesting zones for token")
+        try:
+            with self.http_controller as http_ctl:
+                http_res = http_ctl.send_request(request=req)
+                http_res.raise_for_status()
+        except Exception as exc:
+            msg = f"({type(exc)}) Error getting zones for token. Details: {exc}"
+            log.error(msg)
+            
+            raise exc
+        
+        if not http_res.status_code == 200:
+            log.warning(f"Non-200 status code requesting zones for token: [{http_res.status_code}: {http_res.reason_phrase}]: {http_res.text}")
+            return
+        
+        log.debug(f"Request zones response: [{http_res.status_code}: {http_res.reason_phrase}]")
+        res_dict = http_lib.decode_response(response=http_res)
+        # log.debug(f"Response ({type(res_dict)}): {res_dict}")
+        res = res_dict["result"]
+
+        return res
+
+    def get_zone_waf_filters(self, zone_id: str, token: str | None = None, headers: dict | None = None, refresh: bool = False):
+        if not headers:
+            headers: dict = self._get_auth_headers()
+        
+        token = self._validate_token_auth(token)
+        if not token:
+            raise ValueError("No API token provided")
+        
+        if not self.http_controller:
+            self.http_controller = self._get_controller()
+
+        url: str = f"{self.base_url}/zones/{zone_id}/filters"
+        req: httpx.Request = http_lib.build_request(url=url, headers=headers)
+        
+        log.info(f"Requesting zone WAF filters for zone '{zone_id}'")
+        try:
+            with self.http_controller as http_ctl:
+                http_res = http_ctl.send_request(request=req)
+                http_res.raise_for_status()
+        except Exception as exc:
+            msg = f"({type(exc)}) Error getting WAF filters for zone '{zone_id}'. Details: {exc}"
+            log.error(msg)
+            
+            raise exc
+        
+        if not http_res.status_code == 200:
+            log.warning(f"Non-200 status code requesting WAF filters for zone '{zone_id}': [{http_res.status_code}: {http_res.reason_phrase}]: {http_res.text}")
+            return
+        
+        log.debug(f"Request WAF filters for zone '{zone_id}' response: [{http_res.status_code}: {http_res.reason_phrase}]")
+        res_dict = http_lib.decode_response(response=http_res)
+        # log.debug(f"Response ({type(res_dict)}): {res_dict}")
         res = res_dict["result"]
 
         return res

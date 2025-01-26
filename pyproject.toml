@@ -8,6 +8,7 @@ dependencies = [
     "cfapi",
     "database-lib",
     "depends-lib",
+    "domain",
     "http-lib",
     "loguru>=0.7.3",
     "pandas>=2.2.3",
@@ -49,3 +50,4 @@ http-lib = { workspace = true }
 setup-lib = { workspace = true }
 cfapi = { workspace = true }
 project-cli = { workspace = true }
+domain = { workspace = true }

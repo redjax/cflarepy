@@ -75,14 +75,20 @@ def iter_zone_custom_waf_rules(cf_client: Cloudflare, zones: list[Zone]):
 def iter_zone_waf_packages(cf_client: Cloudflare, zones: list[Zone]):
     waf_pkgs = []
     for zone in zones:
-        waf_packages = cf_client.firewall.waf.packages.list(zone_id=zone.id)
+        try:
+            waf_packages = cf_client.firewall.waf.packages.list(zone_id=zone.id)
+        except Exception as exc:
+            msg = f"({type(exc)}) Error getting Cloudflare zone WAF packages. Details: {exc}"
+            log.error(msg)
+            
+            continue
         waf_pkgs.append({"zone": {"name": zone.name, "id": zone.id}, "waf_packages": waf_packages})
         
         for pkg in waf_packages:
-            ...
+            log.debug(f"WAF package: {pkg}")
         
 
-def main(api_email: str = settings.CLOUDFLARE_SETTINGS.get("CF_API_EMAIL"), api_key: str = settings.CLOUDFLARE_SETTINGS.get("CF_API_TOKEN"), api_token: str = settings.CLOUDFLARE_SETTINGS.get("CF_API_TOKEN")):
+def main(api_email: str = settings.CLOUDFLARE_SETTINGS.get("API_EMAIL"), api_key: str = settings.CLOUDFLARE_SETTINGS.get("API_KEY"), api_token: str = settings.CLOUDFLARE_SETTINGS.get("API_TOKEN")):
     if not api_token:
         if not api_email:
             raise ValueError("Missing a Cloudflare account email")
@@ -107,10 +113,12 @@ def main(api_email: str = settings.CLOUDFLARE_SETTINGS.get("CF_API_EMAIL"), api_
         zone_dump = json.dumps(zone_dicts[0], indent=4, sort_keys=True, default=str)
         f.write(zone_dump)
         
-    iter_zone_waf_rules(cf_client=client, zones=zones)
-    iter_zone_custom_waf_rules(cf_client=client, zones=zones)
+    # iter_zone_waf_rules(cf_client=client, zones=zones)
+    # iter_zone_custom_waf_rules(cf_client=client, zones=zones)
+    iter_zone_waf_packages(cf_client=client, zones=zones)
     
 
 if __name__ == "__main__":
     setup.setup_loguru_logging(log_level=settings.LOGGING_SETTINGS.get("LOG_LEVEL", default="INFO"))
+    log.debug(f"Cloudflare settings: {settings.CLOUDFLARE_SETTINGS.as_dict()}")
     main()

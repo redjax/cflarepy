@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "settings-lib",
+]
 
 [tool.uv]
 dev-dependencies = [
@@ -18,3 +20,4 @@ members = ["libs/*"]
 
 [tool.uv.sources]
 coreutils-lib = { workspace = true }
+settings-lib = { workspace = true }

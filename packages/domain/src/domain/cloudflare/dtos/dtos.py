@@ -1,33 +1,32 @@
-from .schemas import (
+from loguru import logger as log
+
+from pydantic import BaseModel, Field, field_validator, ValidationError, computed_field
+
+from ..schemas import (
+    CloudflareZoneBase,
     CloudflareAccountIn,
     CloudflareAccountOut,
     CloudflareAccountSettingsIn,
     CloudflareAccountSettingsOut,
-)
-
-from .schemas import (
+    CloudflareWAFFilterIn,
+    CloudflareWAFFilterOut,
     CloudflareZoneIn,
     CloudflareZoneOut,
-    # CloudflareZones
-)
-
-from .schemas import (
     CloudflareZoneMetaIn,
     CloudflareZoneMetaOut,
-)
-
-from .schemas import (
     CloudflareZoneOwnerIn,
     CloudflareZoneOwnerOut,
     CloudflareZonePlanIn,
     CloudflareZonePlanOut,
-)
-
-from .schemas import (
     CloudflareZoneTenantIn,
     CloudflareZoneTenantOut,
     CloudflareZoneTenantUnitIn,
-    CloudflareZoneTenantUnitOut,
+    CloudflareZoneTenantUnitOut
 )
 
-from .dtos import CloudflareZones
+class CloudflareZonesBase(BaseModel):
+    zones: list[CloudflareZoneBase] = Field(default_factory=[])
+
+
+class CloudflareZones(CloudflareZonesBase):
+    pass

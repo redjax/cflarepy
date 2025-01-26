@@ -3,9 +3,28 @@ from loguru  import logger as log
 from pydantic import BaseModel, Field, field_validator, ValidationError, computed_field
 
 
+class CloudflareAccountSettingsBase(BaseModel):
+    enforce_twofactor: bool
+    api_access_enabled: bool
+    use_account_custom_ns_by_default: bool
+    default_nameservers: str | None = Field(default=None)
+    abuse_contact_email: str | None = Field(default=None)
+    legacy_flags: dict | None = Field(default_factory={})
+    created_on: str
+
+
+class CloudflareAccountSettingsIn(CloudflareAccountSettingsBase):
+    pass
+
+
+class CloudflareAccountSettingsOut(CloudflareAccountSettingsBase):
+    account_settings_id: int
+
+
 class CloudflareAccountBase(BaseModel):
     id: str
     name: str
+    type: str | None = Field(default=None)
 
 
 class CloudflareAccountIn(CloudflareAccountBase):
@@ -89,7 +108,7 @@ class CloudflareZoneBase(BaseModel):
     account: CloudflareAccountIn
     activated_on: str
     created_on: str
-    development_mod: int
+    development_mode: int
     id: str
     meta: CloudflareZoneMetaIn
     modified_on: str
@@ -114,5 +133,32 @@ class CloudflareZoneOut(CloudflareZoneBase):
     zone_id: int
 
 
-class CloudflareZonesBase(BaseModel):
-    zones: list[CloudflareZoneBase] = Field(default_factory=[])
+class CloudflareWAFFilterBase(BaseModel):
+    id: str
+    expression: str | None = Field(default=None)
+    paused: bool
+    
+    
+class CloudflareWAFFilterIn(CloudflareWAFFilterBase):
+    pass
+
+
+class CloudflareWAFFilterOut(CloudflareWAFFilterBase):
+    waf_filter_id: int
+    
+    
+class CloudflareWAFFilterIn(BaseModel):
+    pass
+
+
+class CloudflareWAFFilterOut(BaseModel):
+    waf_filter_id: int
+
+
+## DTOs
+# class CloudflareZonesBase(BaseModel):
+#     zones: list[CloudflareZoneBase] = Field(default_factory=[])
+
+
+# class CloudflareZones(CloudflareZonesBase):
+#     pass

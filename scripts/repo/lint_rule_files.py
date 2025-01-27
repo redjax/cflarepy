@@ -15,12 +15,31 @@ UA_BLOCKS_TXT = f"{WAF_FILTER_RULES_DIR}/ua_strings.txt"
 
 
 def path_exists(p: t.Union[str, Path]) -> bool:
+    """Check if a path exists.
+    
+    Params:
+        p (str | Path): Path to check.
+    
+    Returns:
+        (bool): True if path exists, False otherwise.
+    
+    """
     p: Path = Path(str(p)).expanduser() if "~" in p else Path(str(p))
     
     return p.exists()
 
 
 def read_file(file_path: t.Union[str, Path], mode: str = "r") -> t.Any:
+    """Reads a file and returns its contents as a list of lines.
+    
+    Params:
+        file_path (str | Path): Path to the file to read.
+        mode (str): Mode to open the file in. Options: ['r', 'r+', 'rb', 'rb+']
+    
+    Returns:
+        (list): List of lines in the file.
+
+    """
     if mode not in ["r", "r+", "rb", "rb+"]:
         raise ValueError(f"Invalid mode: '{mode}'. Must be one of: ['r', 'r+', 'rb', 'rb+']")
 
@@ -45,7 +64,18 @@ def read_file(file_path: t.Union[str, Path], mode: str = "r") -> t.Any:
 
 
 def sort_country_codes(file_path: t.Union[str, Path], output_path: t.Union[str, Path] | None = None, overwrite: bool = False) -> bool:
-    """Sorts country codes in a text file alphabetically and writes the output to a new file."""
+    """Sorts country codes in a text file alphabetically and writes the output to a new file.
+    
+    Params:
+        file_path (str | Path): Path to the file to read.
+        output_path (str | Path | None): Path to the file to write the sorted country codes to. If no output_path is used, and overwrite=True,
+            file will be overwritten in-place.
+        overwrite (bool): Whether to overwrite the output file if it already exists. Defaults to False.
+    
+    Returns:
+        (bool): True if the country codes were successfully sorted and written to the output file, False otherwise.
+    
+    """
     if not file_path:
         raise ValueError("Missing file path to read")
 
@@ -89,7 +119,18 @@ def sort_country_codes(file_path: t.Union[str, Path], output_path: t.Union[str, 
 
 
 def sort_ip_addresses(file_path: t.Union[str, Path], output_path: t.Union[str, Path] | None = None, overwrite: bool = False) -> bool:
-    """Sorts IP addresses in a text file numerically and writes the output to a new file."""
+    """Sorts IP addresses in a text file numerically and writes the output to a new file.
+    
+    Params:
+        file_path (str | Path): Path to the file to read.
+        output_path (str | Path | None): Path to the file to write the sorted IP addresses to. If no output_path is used, and overwrite=True,
+            file will be overwritten in-place.
+        overwrite (bool): Whether to overwrite the output file if it already exists. Defaults to False.
+    
+    Returns:
+        (bool): True if the IP addresses were successfully sorted and written to the output file, False otherwise.
+
+    """
     if not file_path:
         raise ValueError("Missing file path to read")
 
@@ -135,7 +176,18 @@ def sort_ip_addresses(file_path: t.Union[str, Path], output_path: t.Union[str, P
 
 
 def sort_ua_strings(file_path: t.Union[str, Path], output_path: t.Union[str, Path] | None = None, overwrite: bool = False) -> bool:
-    """Sorts User Agent regex strings in a text file alphabetically (ignoring wildcards) & writes the output to a new file while preserving the original wildcards."""
+    """Sorts User Agent regex strings in a text file alphabetically (ignoring wildcards) & writes the output to a new file while preserving the original wildcards.
+    
+    Params:
+        file_path (str | Path): Path to the file to read.
+        output_path (str | Path | None): Path to the file to write the sorted User Agent strings to. If no output_path is used, and overwrite=True,
+            file will be overwritten in-place.
+        overwrite (bool): Whether to overwrite the output file if it already exists. Defaults to False.
+    
+    Returns:
+        (bool): True if the User Agent strings were successfully sorted and written to the output file, False otherwise.
+
+    """
     if not file_path:
         raise ValueError("Missing file path to read")
 
@@ -187,15 +239,30 @@ def sort_ua_strings(file_path: t.Union[str, Path], output_path: t.Union[str, Pat
     return True
  
 
-def main(country_blocks_file, ip_blocks_file, ua_blocks_file):
-    country_code_success = sort_country_codes(file_path=country_blocks_file, overwrite=True)
-    log.info(f"Sort country codes success: {country_code_success}")
-    
-    sort_ip_addresses(file_path=ip_blocks_file, overwrite=True)
-    log.info(f"Sort IP addresses success")
+def main(country_blocks_file: t.Union[str, Path], ip_blocks_file: t.Union[str, Path], ua_blocks_file: t.Union[str, Path]):
+    if country_blocks_file:
+        country_blocks_file = str(country_blocks_file)
+    if ip_blocks_file:
+        ip_blocks_file = str(ip_blocks_file)
+    if ua_blocks_file:
+        ua_blocks_file = str(ua_blocks_file)
 
-    sort_ua_strings(file_path=ua_blocks_file, overwrite=True)
-    log.info(f"Sort User Agent strings success")
+    if path_exists(country_blocks_file):
+        log.info(f"Sorting country codes in file '{country_blocks_file}'")
+        country_code_success = sort_country_codes(file_path=country_blocks_file, overwrite=True)
+        log.info(f"Sort country codes success: {country_code_success}")
+    else:
+        raise FileNotFoundError(f"Could not find country code blocklist file at path: {country_blocks_file}")
+    
+    if path_exists(ip_blocks_file):
+        log.info(f"Sorting IP addresses in file '{ip_blocks_file}'")
+        sort_ip_addresses(file_path=ip_blocks_file, overwrite=True)
+        log.info(f"Sort IP addresses success")
+
+    if path_exists(ua_blocks_file):
+        log.info(f"Sorting User Agent strings in file '{ua_blocks_file}'")
+        sort_ua_strings(file_path=ua_blocks_file, overwrite=True)
+        log.info(f"Sort User Agent strings success")
 
 
 if __name__ == "__main__":

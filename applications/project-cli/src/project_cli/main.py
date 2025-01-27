@@ -5,6 +5,7 @@ import typing as t
 
 from .db import db_app
 from .cf import cf_app
+from .project import project_app
 
 from cyclopts import App, Group, Parameter
 from loguru import logger as log
@@ -14,7 +15,7 @@ app = App(name="cflarepy", help="CLI for clfarepy Cloudflare controller app.")
 
 app.meta.group_parameters = Group("Session Parameters", sort_key=0)
 
-MOUNT_SUB_CLIS: list = [db_app, cf_app]
+MOUNT_SUB_CLIS: list = [db_app, cf_app, project_app]
 
 ## Mount apps
 for sub_cli in MOUNT_SUB_CLIS:

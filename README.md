@@ -40,7 +40,7 @@ This project uses [Dynaconf](https://dynaconf.com) to manage app configurations.
 To run this app, you need to set up your configurations and edit some values:
 
 - Copy & edit config files
-  - In the [config/ directory](./config), iterate through each directory and copy any `settings.toml` to `settings.local.toml`, and any `.secrets.toml` to any `.secrets.local.toml`
+  - In the [config/ directory](./config), iterate through each directory and copy any `settings.toml` to `settings.local.toml`, and any `.secrets.toml` to `.secrets.local.toml`
   - The `.local.toml` version of each file is for local development and will not be committed to git.
   - This project assumes you're using an API token, not a combination of email + API key.
   - Add your token to [config/cloudflare/.secrets.local.toml](./config/cloudflare/.secrets.toml)'s `CF_API_TOKEN`.
